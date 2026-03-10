@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Capybara from "@/components/capybara/Capybara";
 import HappinessMeter from "@/components/capybara/HappinessMeter";
 import TaskList from "@/components/capybara/TaskList";
@@ -77,6 +77,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pb-24 bg-background relative overflow-hidden">
+      <h1 className="font-pixel fixed top-6 left-1/2 -translate-x-1/2 z-20 text-center text-sm sm:text-base tracking-tight">
+        Capybara To-do ~
+      </h1>
+
       {/* Grass / greenery at bottom */}
       <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-0">
         <svg viewBox="0 0 1200 120" className="w-full h-20 sm:h-28" preserveAspectRatio="none">
@@ -92,26 +96,46 @@ const Index = () => {
       </div>
 
       <div
-        className={`w-full max-w-md panel-glass rounded-3xl p-8 space-y-8 shadow-lg border border-border/50 transition-transform relative z-10 ${
+        className={`w-full max-w-5xl panel-glass rounded-3xl p-6 sm:p-8 shadow-lg border border-border/50 transition-transform relative z-10 ${
           breathing ? "animate-breathe" : ""
         }`}
       >
-        <Capybara bouncing={bouncing} />
-        <HappinessMeter happiness={happiness} pulsing={pulsing} />
-        <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
-        <TaskInput onAdd={handleAdd} />
+        <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-8 items-start">
+          <div className="flex flex-col items-center gap-4 lg:sticky lg:top-8">
+            <Capybara bouncing={bouncing} />
+            <div className="w-full max-w-[260px]">
+              <HappinessMeter happiness={happiness} pulsing={pulsing} />
+            </div>
+          </div>
 
-        {/* Reset button — appears when all tasks are done */}
-        {allDone && (
-          <button
-            onClick={handleReset}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-accent text-accent-foreground font-heading text-sm hover:opacity-90 transition-opacity animate-fade-in"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Fresh start! 🌿
-          </button>
-        )}
+          <div className="space-y-6">
+            <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
+            <TaskInput onAdd={handleAdd} />
+
+            {/* Reset button — appears when all tasks are done */}
+            {allDone && (
+              <button
+                onClick={handleReset}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-accent text-accent-foreground font-heading text-sm hover:opacity-90 transition-opacity animate-fade-in"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Fresh start! 🌿
+              </button>
+            )}
+          </div>
+        </div>
       </div>
+
+      <footer className="fixed bottom-2 left-1/2 -translate-x-1/2 z-20 text-[10px] sm:text-xs text-foreground/70">
+        <a
+          href="https://richelleadarlo.space/"
+          className="hover:text-foreground underline underline-offset-2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          © Richelle Adarlo
+        </a>
+      </footer>
     </div>
   );
 };

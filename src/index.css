@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500&family=Noto+Sans:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pangolin&family=Press+Start+2P&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -36,8 +36,9 @@
 
     --radius: 1rem;
 
-    --font-heading: 'M PLUS Rounded 1c', sans-serif;
-    --font-body: 'Noto Sans', sans-serif;
+    --font-heading: 'Pangolin', cursive;
+    --font-body: 'Pangolin', cursive;
+    --font-pixel: 'Press Start 2P', cursive;
 
     --panel-bg: rgba(255, 255, 255, 0.4);
     --completed-opacity: 0.5;
@@ -51,6 +52,10 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+}
+
+.font-pixel {
+  font-family: var(--font-pixel);
 }
 
 @layer base {
