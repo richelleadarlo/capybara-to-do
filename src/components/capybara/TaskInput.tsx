@@ -18,11 +18,11 @@ const TaskInput = ({ onAdd }: TaskInputProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-2">
-      <input
-        type="text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Add a gentle task…"
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Add a task..."
         className="flex-1 px-4 py-3 rounded-xl bg-secondary text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:ring-2 focus:ring-accent/50 font-body text-sm"
       />
       <button
