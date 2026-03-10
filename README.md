@@ -2,6 +2,8 @@
 
 a cute, gamified to-do app built with React + TypeScript
 
+![Demo GIF](./public/demo.gif)
+
 ## What it does
 
 - lets you add, complete, and delete tasks
@@ -22,30 +24,4 @@ npm install
 npm run dev
 ```
 
-## Add images to this README
-
-Use Markdown image syntax:
-
-```md
-![Capybara screenshot](./public/capybara-demo.png)
-```
-
-You can also use an external URL:
-
-```md
-![Demo](https://your-site.com/image.png)
-```
-
-## Add video to this README
-
-GitHub README files do not reliably support fully embedded playable videos. The common approach is to link a thumbnail image to YouTube (or another host):
-
-```md
-[![Watch the demo](./public/demo-thumb.png)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
-```
-
-If you want motion directly in README, use a GIF:
-
-```md
-![Demo GIF](./public/demo.gif)
-```
+OR visit the live version at: `YOUR_LIVE_LINK_HERE`
