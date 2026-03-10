@@ -24,4 +24,4 @@ npm install
 npm run dev
 ```
 
-OR visit the live version at: `YOUR_LIVE_LINK_HERE`
+OR visit the live version at: https://capybara-to-do.vercel.app/
