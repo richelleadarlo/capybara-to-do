@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 
 export interface Task {
   id: string;
@@ -10,12 +10,28 @@ interface TaskItemProps {
   task: Task;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (id: string, text: string) => void;
 }
 
-/** Single task row with checkbox, text, and delete on hover */
-const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
+/** Single task row with checkbox, edit mode, and delete on hover */
+const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
   const [hovered, setHovered] = useState(false);
   const [sparkle, setSparkle] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(task.text);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!editing) {
+      setEditText(task.text);
+    }
+  }, [task.text, editing]);
+
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus();
+    }
+  }, [editing]);
 
   const handleToggle = () => {
     if (!task.completed) {
@@ -23,6 +39,29 @@ const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
       setTimeout(() => setSparkle(false), 800);
     }
     onToggle(task.id);
+  };
+
+  const handleSave = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = editText.trim();
+    if (!trimmed) return;
+
+    if (trimmed !== task.text) {
+      onEdit(task.id, trimmed);
+    }
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditText(task.text);
+    setEditing(false);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      handleCancel();
+    }
   };
 
   return (
@@ -55,24 +94,59 @@ const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
         )}
       </button>
 
-      {/* Task text */}
-      <span
-        className={`flex-1 font-body text-sm transition-all duration-300 ${
-          task.completed ? "line-through opacity-50" : ""
-        }`}
-      >
-        {task.text}
-      </span>
+      {editing ? (
+        <form onSubmit={handleSave} className="flex-1 flex items-center gap-2">
+          <input
+            ref={inputRef}
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+            aria-label="Edit task"
+          />
+          <button
+            type="submit"
+            className="rounded-xl bg-accent px-3 py-2 text-[11px] font-semibold text-accent-foreground hover:opacity-90 transition-opacity"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="rounded-xl border border-border px-3 py-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Cancel
+          </button>
+        </form>
+      ) : (
+        <>
+          <span
+            className={`flex-1 font-body text-sm transition-all duration-300 ${
+              task.completed ? "line-through opacity-50" : ""
+            }`}
+          >
+            {task.text}
+          </span>
 
-      {/* Delete — only visible on hover for completed tasks */}
-      {task.completed && hovered && (
-        <button
-          onClick={() => onDelete(task.id)}
-          className="text-muted-foreground/50 hover:text-destructive transition-colors text-xs"
-          aria-label="Delete task"
-        >
-          ✕
-        </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setEditing(true)}
+              className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
+              aria-label="Edit task"
+            >
+              Edit
+            </button>
+            {task.completed && hovered && (
+              <button
+                onClick={() => onDelete(task.id)}
+                className="text-muted-foreground/50 hover:text-destructive transition-colors text-xs"
+                aria-label="Delete task"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

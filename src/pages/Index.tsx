@@ -75,6 +75,10 @@ const Index = () => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const handleEdit = useCallback((id: string, text: string) => {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, text } : t)));
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pb-24 bg-background relative overflow-hidden">
       <h1 className="font-pixel fixed top-6 left-1/2 -translate-x-1/2 z-20 text-center text-sm sm:text-base tracking-tight">
@@ -109,7 +113,7 @@ const Index = () => {
           </div>
 
           <div className="space-y-6">
-            <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
+            <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
             <TaskInput onAdd={handleAdd} />
 
             {/* Reset button — appears when all tasks are done */}

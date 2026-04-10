@@ -4,10 +4,11 @@ interface TaskListProps {
   tasks: Task[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (id: string, text: string) => void;
 }
 
 /** Scrollable task list container */
-const TaskList = ({ tasks, onToggle, onDelete }: TaskListProps) => {
+const TaskList = ({ tasks, onToggle, onDelete, onEdit }: TaskListProps) => {
   if (tasks.length === 0) {
     return (
       <p className="text-center text-muted-foreground text-sm py-8 font-heading">
@@ -24,6 +25,7 @@ const TaskList = ({ tasks, onToggle, onDelete }: TaskListProps) => {
           task={task}
           onToggle={onToggle}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>
