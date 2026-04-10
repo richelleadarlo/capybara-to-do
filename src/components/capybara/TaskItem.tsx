@@ -129,13 +129,15 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
           </span>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setEditing(true)}
-              className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
-              aria-label="Edit task"
-            >
-              Edit
-            </button>
+            {hovered && (
+              <button
+                onClick={() => setEditing(true)}
+                className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
+                aria-label="Edit task"
+              >
+                Edit
+              </button>
+            )}
             {task.completed && hovered && (
               <button
                 onClick={() => onDelete(task.id)}
