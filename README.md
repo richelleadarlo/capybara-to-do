@@ -1,4 +1,4 @@
-# Capybara To-Do 
+# Capybara To-Do ˚˖𓍢ִ໋`🌿:✧˚
 
 a cute, gamified to-do app built with React + TypeScript
 
