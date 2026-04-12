@@ -38,17 +38,15 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
   const [editText, setEditText] = useState(task.text);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const applyFormatting = (style: "bold" | "underline" | "indent") => {
+  const applyFormatting = (style: "bold" | "underline") => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
     const { value, selectionStart, selectionEnd } = textarea;
     if (selectionStart === null || selectionEnd === null) return;
-
-    if (style !== "indent" && selectionStart === selectionEnd) return;
+    if (selectionStart === selectionEnd) return;
 
     let updatedText = value;
-    let newStart = selectionStart;
     let newEnd = selectionEnd;
 
     if (style === "bold") {
@@ -59,16 +57,6 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
       const selected = value.slice(selectionStart, selectionEnd);
       updatedText = `${value.slice(0, selectionStart)}__${selected}__${value.slice(selectionEnd)}`;
       newEnd = selectionEnd + 4;
-    } else {
-      const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
-      const lineEndIndex = value.indexOf("\n", selectionEnd);
-      const lineEnd = lineEndIndex === -1 ? value.length : lineEndIndex;
-      const block = value.slice(lineStart, lineEnd);
-      const indented = block.split("\n").map((line) => `  ${line}`).join("\n");
-      updatedText = `${value.slice(0, lineStart)}${indented}${value.slice(lineEnd)}`;
-      const added = block.split("\n").length * 2;
-      newStart = selectionStart + 2;
-      newEnd = selectionEnd + added;
     }
 
     setEditText(updatedText);
@@ -167,13 +155,6 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
               className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
             >
               Underline
-            </button>
-            <button
-              type="button"
-              onClick={() => applyFormatting("indent")}
-              className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
-            >
-              Indent
             </button>
           </div>
           <textarea
