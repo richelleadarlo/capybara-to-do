@@ -103,8 +103,8 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
     const trimmed = editText.trim();
     if (!trimmed) return;
 
-    if (trimmed !== task.text) {
-      onEdit(task.id, trimmed);
+    if (editText !== task.text) {
+      onEdit(task.id, editText);
     }
     setEditing(false);
   };
