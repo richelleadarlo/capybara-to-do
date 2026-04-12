@@ -1,5 +1,22 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+const formatTaskText = (value: string) => {
+  const escaped = escapeHtml(value);
+  const formatted = escaped
+    .replace(/\*\*(.+?)\*\*/gs, "<strong>$1</strong>")
+    .replace(/__(.+?)__/gs, "<u>$1</u>");
+
+  return formatted
+    .replace(/^ +/gm, (match) => "&nbsp;".repeat(match.length))
+    .replace(/\n/g, "<br />");
+};
+
 export interface Task {
   id: string;
   text: string;
@@ -19,7 +36,47 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
   const [sparkle, setSparkle] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const applyFormatting = (style: "bold" | "underline" | "indent") => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const { value, selectionStart, selectionEnd } = textarea;
+    if (selectionStart === null || selectionEnd === null) return;
+
+    if (style !== "indent" && selectionStart === selectionEnd) return;
+
+    let updatedText = value;
+    let newStart = selectionStart;
+    let newEnd = selectionEnd;
+
+    if (style === "bold") {
+      const selected = value.slice(selectionStart, selectionEnd);
+      updatedText = `${value.slice(0, selectionStart)}**${selected}**${value.slice(selectionEnd)}`;
+      newEnd = selectionEnd + 4;
+    } else if (style === "underline") {
+      const selected = value.slice(selectionStart, selectionEnd);
+      updatedText = `${value.slice(0, selectionStart)}__${selected}__${value.slice(selectionEnd)}`;
+      newEnd = selectionEnd + 4;
+    } else {
+      const lineStart = value.lastIndexOf("\n", selectionStart - 1) + 1;
+      const lineEndIndex = value.indexOf("\n", selectionEnd);
+      const lineEnd = lineEndIndex === -1 ? value.length : lineEndIndex;
+      const block = value.slice(lineStart, lineEnd);
+      const indented = block.split("\n").map((line) => `  ${line}`).join("\n");
+      updatedText = `${value.slice(0, lineStart)}${indented}${value.slice(lineEnd)}`;
+      const added = block.split("\n").length * 2;
+      newStart = selectionStart + 2;
+      newEnd = selectionEnd + added;
+    }
+
+    setEditText(updatedText);
+    window.requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(newStart, newEnd);
+    });
+  };
 
   useEffect(() => {
     if (!editing) {
@@ -29,7 +86,7 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
 
   useEffect(() => {
     if (editing) {
-      inputRef.current?.focus();
+      textareaRef.current?.focus();
     }
   }, [editing]);
 
@@ -57,7 +114,7 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
     setEditing(false);
   };
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Escape") {
       event.preventDefault();
       handleCancel();
@@ -95,38 +152,63 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
       </button>
 
       {editing ? (
-        <form onSubmit={handleSave} className="flex-1 flex items-center gap-2">
-          <input
-            ref={inputRef}
+        <form onSubmit={handleSave} className="flex-1 space-y-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => applyFormatting("bold")}
+              className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
+            >
+              Bold
+            </button>
+            <button
+              type="button"
+              onClick={() => applyFormatting("underline")}
+              className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
+            >
+              Underline
+            </button>
+            <button
+              type="button"
+              onClick={() => applyFormatting("indent")}
+              className="rounded-2xl border border-border px-3 py-1 text-[11px] text-muted-foreground hover:border-accent hover:text-foreground transition-colors"
+            >
+              Indent
+            </button>
+          </div>
+          <textarea
+            ref={textareaRef}
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="w-full min-h-[84px] resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
             aria-label="Edit task"
           />
-          <button
-            type="submit"
-            className="rounded-xl bg-accent px-3 py-2 text-[11px] font-semibold text-accent-foreground hover:opacity-90 transition-opacity"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="rounded-xl border border-border px-3 py-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Cancel
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="submit"
+              className="rounded-xl bg-accent px-3 py-2 text-[11px] font-semibold text-accent-foreground hover:opacity-90 transition-opacity"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="rounded-xl border border-border px-3 py-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       ) : (
         <>
           <span
             className={`flex-1 font-body text-sm transition-all duration-300 ${
               task.completed ? "line-through opacity-50" : ""
-            }`}
-          >
-            {task.text}
-          </span>
+            }`} 
+            style={{ whiteSpace: "pre-wrap" }}
+            dangerouslySetInnerHTML={{ __html: formatTaskText(task.text) }}
+          />
 
           <div className="flex items-center gap-2">
             {hovered && (
