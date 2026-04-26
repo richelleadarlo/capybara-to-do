@@ -51,7 +51,7 @@ const TaskList = ({ tasks, onToggle, onDelete, onEdit, onReorder }: TaskListProp
   }
 
   return (
-    <div className="max-h-[320px] overflow-y-auto space-y-1 pr-1">
+    <div className="task-list-scroll max-h-[320px] overflow-y-auto space-y-1 pr-2">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}
