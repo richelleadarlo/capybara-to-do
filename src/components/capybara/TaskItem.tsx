@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type DragEvent,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 
 const escapeHtml = (value: string) =>
   value
@@ -25,13 +32,30 @@ export interface Task {
 
 interface TaskItemProps {
   task: Task;
+  isDragging: boolean;
+  isDragOver: boolean;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string, text: string) => void;
+  onDragStart: (id: string) => void;
+  onDragOver: (id: string) => void;
+  onDrop: (id: string) => void;
+  onDragEnd: () => void;
 }
 
 /** Single task row with checkbox, edit mode, and delete on hover */
-const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
+const TaskItem = ({
+  task,
+  isDragging,
+  isDragOver,
+  onToggle,
+  onDelete,
+  onEdit,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+}: TaskItemProps) => {
   const [hovered, setHovered] = useState(false);
   const [sparkle, setSparkle] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -62,7 +86,7 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
     setEditText(updatedText);
     window.requestAnimationFrame(() => {
       textarea.focus();
-      textarea.setSelectionRange(newStart, newEnd);
+      textarea.setSelectionRange(selectionStart, newEnd);
     });
   };
 
@@ -109,9 +133,46 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
     }
   };
 
+  const handleDragStart = (event: DragEvent<HTMLDivElement>) => {
+    if (editing) {
+      event.preventDefault();
+      return;
+    }
+
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", task.id);
+    onDragStart(task.id);
+  };
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    if (editing) {
+      return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    onDragOver(task.id);
+  };
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
+    if (editing) {
+      return;
+    }
+
+    event.preventDefault();
+    onDrop(task.id);
+  };
+
   return (
     <div
-      className="relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-secondary/60 group"
+      draggable={!editing}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      onDragEnd={onDragEnd}
+      className={`relative flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent transition-all duration-300 group ${
+        isDragging ? "scale-[0.99] opacity-60" : "hover:bg-secondary/60"
+      } ${isDragOver ? "border-accent bg-secondary/70" : ""}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -138,6 +199,17 @@ const TaskItem = ({ task, onToggle, onDelete, onEdit }: TaskItemProps) => {
           </svg>
         )}
       </button>
+
+      {!editing && (
+        <div
+          className="flex shrink-0 cursor-grab select-none flex-col gap-0.5 text-muted-foreground/60 active:cursor-grabbing"
+          aria-hidden="true"
+        >
+          <span className="block h-1 w-1 rounded-full bg-current" />
+          <span className="block h-1 w-1 rounded-full bg-current" />
+          <span className="block h-1 w-1 rounded-full bg-current" />
+        </div>
+      )}
 
       {editing ? (
         <form onSubmit={handleSave} className="flex-1 space-y-2">

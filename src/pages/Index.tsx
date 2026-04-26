@@ -4,6 +4,7 @@ import HappinessMeter from "@/components/capybara/HappinessMeter";
 import TaskList from "@/components/capybara/TaskList";
 import TaskInput from "@/components/capybara/TaskInput";
 import type { Task } from "@/components/capybara/TaskItem";
+import { reorderTasks } from "@/components/capybara/taskOrder";
 import { RotateCcw } from "lucide-react";
 
 /** Load tasks from localStorage */
@@ -79,6 +80,10 @@ const Index = () => {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, text } : t)));
   }, []);
 
+  const handleReorder = useCallback((fromId: string, toId: string) => {
+    setTasks((prev) => reorderTasks(prev, fromId, toId));
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pb-24 bg-background relative overflow-hidden">
       <h1 className="font-pixel fixed top-6 left-1/2 -translate-x-1/2 z-20 text-center text-sm sm:text-base tracking-tight">
@@ -113,7 +118,13 @@ const Index = () => {
           </div>
 
           <div className="space-y-6">
-            <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
+            <TaskList
+              tasks={tasks}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onReorder={handleReorder}
+            />
             <TaskInput onAdd={handleAdd} />
 
             {/* Reset button — appears when all tasks are done */}
