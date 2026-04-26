@@ -202,7 +202,11 @@ const TaskItem = ({
 
       {!editing && (
         <div
-          className="flex shrink-0 cursor-grab select-none flex-col gap-0.5 text-muted-foreground/60 active:cursor-grabbing"
+          className={`flex shrink-0 select-none flex-col gap-0.5 text-muted-foreground/60 transition-opacity duration-200 ${
+            hovered || isDragging
+              ? "cursor-grab opacity-100 active:cursor-grabbing"
+              : "pointer-events-none opacity-0"
+          }`}
           aria-hidden="true"
         >
           <span className="block h-1 w-1 rounded-full bg-current" />
